@@ -17,11 +17,11 @@ export default function Form(props: IProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.name === "time" ? parseInt(e.target.value): e.target.value,
     }))};
 
   const handleClick = () => {
-    console.log(props.index, formData.process, formData.time);
+    // console.log(props.index, formData.process, formData.time);
     props.addProcess( props.index, formData.process, formData.time);
   }
 

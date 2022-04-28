@@ -11,9 +11,10 @@ export default function App() {
   const [process, setProcess] = useState<string>("")
   const [process2, setProcess2] = useState<string>("")
   const [process3, setProcess3] = useState<string>("")
-  const worker: Worker = new Worker('worker.js');
-  const worker2: Worker = new Worker('worker.js');
-  const worker3: Worker = new Worker('worker.js');
+
+  let worker: Worker;
+  let worker2: Worker;
+  let worker3: Worker;
 
   const [schedulers, setSchedulers] = useState<IScheduler[]>([{
     algorithm: "FCFS",
@@ -42,12 +43,15 @@ export default function App() {
   ])
 
   const getTotalTime = (processes: IProcess[]) => {
-    return processes.reduce((acc, curr) => acc + curr.time, 0)
+    return processes.reduce((total, process) => total + process.time, 0)
   }
 
 
-  const handleClick = () => {
+  const handleClick = async () => {
     resetStates();
+    worker = new Worker('worker.js');
+    worker2 = new Worker('worker.js');
+    worker3 = new Worker('worker.js');
     worker.postMessage(schedulers[0]);
     worker.onmessage = (e) => {
       // const steps = getTotalTime(schedulers[0].processes) / e.data.time;
@@ -58,8 +62,9 @@ export default function App() {
     worker2.postMessage(schedulers[1]);
     worker2.onmessage = (e) => {
       if (schedulers[1].quantum) {
-        const steps = getTotalTime(schedulers[1].processes) / e.data.time;
-        setCont2((prevState) => prevState + (100 / steps))
+        const steps = (100 / getTotalTime(schedulers[1].processes)) * e.data.time;
+        // console.log( getTotalTime(schedulers[1].processes))
+        setCont2((prevState) => prevState + steps)
         setProcess2(e.data.process)
       }
     }
@@ -67,8 +72,9 @@ export default function App() {
     worker3.postMessage(schedulers[2]);
     worker3.onmessage = (e) => {
       if (schedulers[2].quantum) {
-        const steps = getTotalTime(schedulers[2].processes) / e.data.time;
-        setCont3((prevState) => prevState + (100 / steps))
+        const steps = (100 / getTotalTime(schedulers[2].processes)) * e.data.time;
+        // const steps = getTotalTime(schedulers[2].processes) / e.data.time;
+        setCont3((prevState) => prevState + steps)
         setProcess3(e.data.process)
       }
     }
